@@ -1,4 +1,4 @@
-Okay, here are 20 Python Data Manipulation, Statistics & Analytics Interview Questions and Answers, designed for a mid-to-senior level BIE role at Amazon, with a focus on practical application and detailed explanations, including pros and cons of different approaches.
+
 
 ## Python Data Manipulation, Statistics & Analytics Interview Questions
 
@@ -595,3 +595,466 @@ print("\nOuter Join:\n", outer_joined)
 
 ---
 
+|                                                                                                                                                                                                                |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Question:** Explain the concept of "tidy data" and why it's important in data analysis. How would you transform a DataFrame from a "wide" format to a "long" (tidy) format using Pandas? |
+
+<br>
+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Answer:**
+
+**Tidy Data:**
+
+"Tidy data" is a standard way of organizing data where:
+
+1. **Each variable forms a column.**
+2. **Each observation forms a row.**
+3. **Each type of observational unit forms a table.**
+
+**Importance:**
+
+*   **Consistency:** Tidy data provides a consistent and predictable structure, making it easier to work with using various data analysis tools.
+*   **Efficiency:** Many data analysis functions and libraries (like those in Pandas and the `tidyverse` in R) are designed to work efficiently with tidy data.
+*   **Clarity:** Tidy data is often easier to understand and interpret because the structure clearly represents the underlying data.
+
+**Wide to Long Transformation (Untidy to Tidy):**
+
+We can use the `pd.melt()` function in Pandas to transform a DataFrame from wide to long format:
+
+**Example:**
+
+**Wide DataFrame (`wide_df`):**
+
+| customer\_id | name  | Jan\_sales | Feb\_sales | Mar\_sales |
+| :---------- | :---- | :-------- | :-------- | :-------- |
+| 1           | Alice | 100       | 150       | 120       |
+| 2           | Bob   | 200       | 180       | 210       |
+
+**Code:**
+
+```python
+import pandas as pd
+
+wide_df = pd.DataFrame({
+    'customer_id': [1, 2],
+    'name': ['Alice', 'Bob'],
+    'Jan_sales': [100, 200],
+    'Feb_sales': [150, 180],
+    'Mar_sales': [120, 210]
+})
+
+long_df = pd.melt(wide_df,
+                  id_vars=['customer_id', 'name'],  # Identifier variables (stay as columns)
+                  var_name='month',  # Name of the new 'variable' column
+                  value_name='sales')  # Name of the new 'value' column
+
+print(long_df)
+```
+
+**Long (Tidy) DataFrame (`long_df`):**
+
+| customer\_id | name  | month     | sales |
+| :---------- | :---- | :-------- | :---- |
+| 1           | Alice | Jan\_sales | 100   |
+| 2           | Bob   | Jan\_sales | 200   |
+| 1           | Alice | Feb\_sales | 150   |
+| 2           | Bob   | Feb\_sales | 180   |
+| 1           | Alice | Mar\_sales | 120   |
+| 2           | Bob   | Mar\_sales | 210   |
+
+**Explanation:**
+
+*   `id_vars`: Specifies the columns to keep as identifiers.
+*   `var_name`: The name of the new column that will hold the "variable" names (originally the column names in the wide format).
+*   `value_name`: The name of the new column that will hold the "values".
+
+**Pros of Tidy Data:**
+
+*   **Easier Data Manipulation:** Many Pandas functions work seamlessly with tidy data.
+*   **Facilitates Grouping and Aggregation:** Easier to perform group operations and aggregations.
+*   **Better for Visualization:** Visualization libraries often expect tidy data.
+
+**Cons of Tidy Data:**
+
+*   **Can Be Less Intuitive for Some:**  The long format might be less intuitive to read initially for humans in some cases.
+*   **Potentially Larger:** Can be larger in terms of the number of rows if there is not a lot of repetition in the identifier variables.
+
+|
+| :-- |
+|---|
+
+---
+
+### **Question 11**
+
+|                                                                                                                                                                                |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Question:** How would you calculate the Pearson correlation coefficient between two numerical columns in a Pandas DataFrame? What are the assumptions of Pearson correlation, and how would you handle potential violations of these assumptions at scale? |
+
+<br>
+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Answer:**
+
+**Calculation in Pandas:**
+
+```python
+import pandas as pd
+
+# Assuming your DataFrame is named 'df' and the columns are 'sales' and 'marketing_spend'
+correlation = df['sales'].corr(df['marketing_spend'])
+
+print(f"Pearson correlation: {correlation:.2f}")
+```
+
+**Explanation:**
+
+*   `df['sales'].corr(df['marketing_spend'])`: The `.corr()` method in Pandas calculates the Pearson correlation coefficient by default when called on two Series.
+
+**Assumptions of Pearson Correlation:**
+
+1. **Linearity:** Assumes a linear relationship between the two variables.
+2. **Normality:** Assumes that both variables are normally distributed.
+3. **Homoscedasticity:** Assumes that the variance of one variable is constant across all values of the other variable (homogeneity of variances).
+4. **Independence:** Assumes that the observations are independent of each other.
+5. **No Outliers** Assumes that there are no significant outliers that can distort the correlation coefficient
+
+**Handling Violations at Scale:**
+
+1. **Non-Linearity:**
+    *   **Transformations:** Apply transformations (e.g., log, square root) to one or both variables to make the relationship more linear.
+    *   **Non-Linear Correlation:** Consider using non-linear correlation measures like Spearman's rank correlation or Kendall's tau, which are less sensitive to non-linearity.
+    *   **Example (Spearman):** `df['sales'].corr(df['marketing_spend'], method='spearman')`
+
+2. **Non-Normality:**
+    *   **Transformations:** Apply transformations (e.g., Box-Cox, Yeo-Johnson) to make the data more normally distributed.
+    *   **Non-Parametric Tests:** Use non-parametric correlation measures like Spearman's or Kendall's.
+    *   **Bootstrapping:** Use bootstrapping to estimate the sampling distribution of the correlation coefficient without relying on normality assumptions.
+
+3. **Heteroscedasticity:**
+    *   **Transformations:** Transformations used to address non-linearity or non-normality might also help with heteroscedasticity.
+    *   **Weighted Least Squares:** If you are using correlation in the context of regression, consider using weighted least squares.
+
+4. **Outliers:**
+    *   **Robust Correlation:** Consider robust correlation measures that are less sensitive to outliers.
+    *   **Outlier Removal:** Carefully consider removing outliers if they are truly errors or anomalies. However, removing outliers can be subjective and should be done with caution, especially at scale. Proper documentation and justification are needed.
+    *   **Winsorizing/Trimming:**  Limit the extreme values to a certain percentile (Winsorizing) or remove a certain percentage of extreme values from both ends (trimming).
+
+5. **Non-Independence:**
+    * **Time-Series Data:** If dealing with time-series data where observations might be auto-correlated, use time-series specific correlation techniques (e.g., auto-correlation, partial auto-correlation).
+    * **Clustered Data:** If data is clustered (e.g., students within schools), use techniques that account for the clustering structure (e.g., multi-level models).
+
+**Pros of Pearson Correlation:**
+
+*   **Simple and Interpretable:** Easy to understand and calculate.
+*   **Widely Used:** A standard measure of linear association.
+
+**Cons of Pearson Correlation:**
+
+*   **Sensitive to Outliers:** Can be heavily influenced by outliers.
+*   **Only Measures Linear Relationships:** May not capture non-linear associations.
+*   **Assumptions Must Be Met:**  Results can be misleading if assumptions are violated.
+
+|
+| :-- |
+|---|
+
+---
+
+### **Question 12**
+
+|                                                                                                                                                                                                                                           |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Question:** You are given a dataset with a categorical variable that has a large number of unique categories (e.g., 1000+). What techniques could you use to reduce the dimensionality of this variable for use in machine learning models or for visualization? |
+
+<br>
+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Answer:**
+
+High-cardinality categorical variables can pose challenges for some machine learning algorithms and visualizations. Here are some dimensionality reduction techniques:
+
+1. **Feature Hashing (Hashing Trick):**
+    *   **How it works:** Applies a hash function to the categories, mapping them to a fixed number of buckets. This reduces the number of unique values.
+    *   **Pros:** Computationally efficient, handles new categories easily, works well with linear models.
+    *   **Cons:** Can lead to collisions (different categories mapping to the same bucket), loss of interpretability.
+    *   **Example:**
+        ```python
+        from sklearn.feature_extraction import FeatureHasher
+
+        h = FeatureHasher(n_features=100, input_type='string')  # Map to 100 features
+        hashed_features = h.transform(df['high_cardinality_column'].astype(str))
+        ```
+
+2. **Frequency Encoding:**
+    *   **How it works:** Replace each category with its frequency (count or proportion) in the dataset.
+    *   **Pros:** Simple, captures some information about the category's prevalence.
+    *   **Cons:** Loses information about the specific category, can be sensitive to skewed distributions.
+    *   **Example:**
+        ```python
+        encoding = df.groupby('high_cardinality_column').size() / len(df)
+        df['category_encoded'] = df['high_cardinality_column'].map(encoding)
+        ```
+
+3. **Target Encoding (Mean Encoding):**
+    *   **How it works:** Replace each category with the average value of the target variable for that category.
+    *   **Pros:** Captures information about the relationship between the category and the target.
+    *   **Cons:** Can lead to overfitting, especially with small datasets or categories with few observations. Requires careful handling to avoid data leakage (e.g., using cross-validation).
+    *   **Example:**
+        ```python
+        target_mean = df.groupby('high_cardinality_column')['target_variable'].mean()
+        df['category_encoded'] = df['high_cardinality_column'].map(target_mean)
+        ```
+
+4. **Grouping/Binning:**
+    *   **How it works:** Group similar categories based on domain knowledge or data analysis. Create "other" or "miscellaneous" categories for infrequent or less important categories.
+    *   **Pros:** Reduces cardinality while retaining interpretability.
+    *   **Cons:** Requires domain expertise or data exploration, may lose information if grouping is too coarse.
+    *   **Example:**  Manually create a mapping dictionary and use `map()` or create a function to bin and utilize apply function.
+
+5. **Embedding (e.g., using Word2Vec or Entity Embeddings):**
+    *   **How it works:** Learn a low-dimensional vector representation (embedding) for each category, capturing semantic relationships between categories. Often used in deep learning models.
+    *   **Pros:** Captures complex relationships between categories, can improve model performance.
+    *   **Cons:** Computationally expensive, requires large datasets, harder to interpret.
+
+6. **Weight of Evidence (WOE) Encoding:**
+
+    *   **How it works:**  Primarily used in credit scoring and other binary classification problems. It replaces each category with the log of the odds ratio of the target variable being 1 vs. 0 for that category.
+    *   **Pros:** Creates a monotonic relationship between the encoded variable and the target. Handles missing values and outliers well.
+    *   **Cons:** Only applicable to binary classification problems.
+    *   **Example:**
+        ```python
+        import category_encoders as ce
+
+        encoder = ce.WOEEncoder(cols=['high_cardinality_column'])
+        df = encoder.fit_transform(df, df['binary_target_variable'])
+        ```
+7. **Leave-One-Out Encoding:**
+
+    * **How it works:** Similar to target encoding, but to reduce overfitting, the target statistic for each category is calculated by excluding the current row's target.
+    * **Pros:** Reduces the risk of overfitting compared to regular target encoding.
+    * **Cons:**  More computationally expensive than regular target encoding.
+    * **Example:**
+
+        ```python
+        import category_encoders as ce
+
+        encoder = ce.LeaveOneOutEncoder(cols=['high_cardinality_column'])
+        df = encoder.fit_transform(df, df['target_variable'])
+        ```
+
+**Choice of Technique:**
+
+*   **Dataset Size:** For very large datasets, hashing or frequency encoding might be preferred for their efficiency.
+*   **Model Type:** Linear models can work well with hashing. Tree-based models can handle high cardinality better but might benefit from grouping or target encoding. Deep learning models can use embeddings.
+*   **Interpretability:** If interpretability is important, grouping or frequency encoding might be preferred over hashing.
+*   **Target Variable:** If you have a target variable, target encoding or WOE encoding can be very effective.
+
+|
+| :-- |
+|---|
+
+---
+
+### **Question 13**
+
+|                                                                                                                                                                                                                                      |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Question:** Describe how you would use the `groupby()` method in Pandas to perform aggregations and transformations on a DataFrame. Provide examples of different aggregation functions and explain how `transform()` can be used in conjunction with `groupby()`. |
+
+<br>
+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Answer:**
+
+The `groupby()` method in Pandas is used to split a DataFrame into groups based on one or more columns and then apply functions to each group independently.
+
+**Basic `groupby()` and Aggregation:**
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'customer_id': [1, 1, 2, 2, 3, 3],
+    'product_category': ['A', 'B', 'A', 'C', 'B', 'C'],
+    'sales_amount': [100, 200, 150, 50, 300, 100]
+})
+
+# Group by 'customer_id' and calculate the sum of 'sales_amount' for each customer
+customer_sales = df.groupby('customer_id')['sales_amount'].sum()
+print(customer_sales)
+
+# Group by 'product_category' and calculate the average 'sales_amount' for each category
+category_avg_sales = df.groupby('product_category')['sales_amount'].mean()
+print(category_avg_sales)
+```
+
+**Common Aggregation Functions:**
+
+*   `sum()`: Calculates the sum of values.
+*   `mean()`: Calculates the average.
+*   `median()`: Calculates the median.
+*   `min()`: Finds the minimum value.
+*   `max()`: Finds the maximum value.
+*   `count()`: Counts the number of non-null values.
+*   `std()`: Calculates the standard deviation.
+*   `var()`: Calculates the variance.
+*   `size()`: Counts the number of rows in each group (including null values).
+*   `first()`, `last()`: Returns the first or last value in each group.
+*   `nth(n)`: Returns the nth value in each group.
+
+**Multiple Aggregations:**
+
+You can apply multiple aggregation functions at once using `agg()`:
+
+```python
+customer_summary = df.groupby('customer_id')['sales_amount'].agg(['sum', 'mean', 'count'])
+print(customer_summary)
+```
+
+**`transform()` with `groupby()`:**
+
+The `transform()` method is used to perform calculations on each group while keeping the original DataFrame's shape. It returns a DataFrame with the same index as the original but with values transformed based on the group-wise operation.
+
+**Example:**
+
+```python
+# Calculate the percentage of each sale that contributes to the customer's total sales
+df['sales_percentage'] = df.groupby('customer_id')['sales_amount'].transform(lambda x: (x / x.sum()) * 100)
+print(df)
+```
+
+**Explanation:**
+
+1. **`groupby('customer_id')`:** Groups the DataFrame by `customer_id`.
+2. **`transform(lambda x: (x / x.sum()) * 100)`:** For each group (customer), this calculates the percentage of each sale amount relative to the customer's total sales. The `transform()` method ensures that the result has the same shape as the original DataFrame, so each sale amount is assigned its corresponding percentage.
+
+**Use Cases for `transform()`:**
+
+*   **Calculating Group-Based Percentages or Proportions:** As shown in the example.
+*   **Standardizing Data within Groups:**  For example, calculating z-scores within each group.
+*   **Filling Missing Values with Group-Specific Values:**  You could use `transform()` with a function that fills missing values with the group's mean, for example.
+*   **Adding Group Statistics to Original DataFrame:** Add information such as rank within the group, first value of the group, difference from group mean, etc.
+
+**Pros of `groupby()` and `transform()`:**
+
+*   **Efficient:** Leverages optimized Pandas operations.
+*   **Flexible:** Supports various aggregation and transformation functions.
+*   **Expressive:** Enables complex calculations with concise code.
+
+**Cons of `groupby()` and `transform()`:**
+
+*   **Memory:** Can be memory-intensive for very large groups or if not used carefully with `transform()`.
+
+|
+| :-- |
+|---|
+
+---
+
+### **Question 14**
+
+|                                                                                                                                                                                                |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Question:** What are the differences between lists, tuples, dictionaries, and sets in Python? Discuss their use cases, and their pros and cons in the context of data manipulation and analysis. |
+
+<br>
+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Answer:**
+
+Here's a comparison of lists, tuples, dictionaries, and sets in Python:
+
+**1. Lists:**
+
+*   **Definition:** Ordered, mutable (changeable) sequences of items.
+*   **Syntax:** `my_list = [1, 2, 'apple', 3.14]`
+*   **Use Cases:**
+    *   Storing collections of items where order matters.
+    *   When you need to modify the collection after creation (add, remove, change elements).
+*   **Pros:**
+    *   Flexible: Can hold items of different data types.
+    *   Mutable: Allows in-place modification.
+*   **Cons:**
+    *   Slower than tuples for large, unchanging datasets.
+    *   Mutable nature can lead to unintended side effects if not handled carefully.
+
+**2. Tuples:**
+
+*   **Definition:** Ordered, immutable sequences of items.
+*   **Syntax:** `my_tuple = (1, 2, 'apple', 3.14)`
+*   **Use Cases:**
+    *   Representing fixed collections of data (e.g., coordinates, database records).
+    *   Data integrity: Ensuring that data cannot be changed after creation.
+    *   Dictionary keys (since they need to be immutable).
+*   **Pros:**
+    *   Faster than lists for iteration and access.
+    *   Immutable: Protects data integrity.
+*   **Cons:**
+    *   Cannot be modified after creation.
+
+**3. Dictionaries:**
+
+*   **Definition:** Unordered collections of key-value pairs.
+*   **Syntax:** `my_dict = {'name': 'Alice', 'age': 30, 'city': 'New York'}`
+*   **Use Cases:**
+    *   Storing data with associated labels or attributes.
+    *   Fast lookups based on keys.
+    *   Representing structured data.
+*   **Pros:**
+    *   Fast lookups: Efficiently retrieve values based on keys (using hashing).
+    *   Flexible: Can hold values of different data types.
+*   **Cons:**
+    *   Unordered (before Python 3.7, order was not guaranteed).
+    *   Keys must be immutable (e.g., strings, numbers, tuples).
+
+**4. Sets:**
+
+*   **Definition:** Unordered collections of unique items.
+*   **Syntax:** `my_set = {1, 2, 3}`
+*   **Use Cases:**
+    *   Removing duplicate elements from a list.
+    *   Checking for membership (whether an element is in a set).
+    *   Performing set operations (union, intersection, difference).
+*   **Pros:**
+    *   Fast membership testing.
+    *   Efficiently removes duplicates.
+*   **Cons:**
+    *   Unordered: Does not preserve the order of elements.
+    *   Only stores unique elements
+
+**In the Context of Data Analysis:**
+
+*   **Lists:** Useful for storing sequences of data points, manipulating rows or columns of data, or collecting results during iterations.
+*   **Tuples:**  Good for representing records or rows of data where each element has a specific meaning (e.g., (customer\_id, order\_date, total\_amount)). Also useful when immutability is needed for data integrity or as dictionary keys.
+*   **Dictionaries:** Excellent for storing mappings between entities (e.g., customer ID to customer name), representing structured data (similar to JSON objects), or counting the frequency of items.
+*   **Sets:** Efficiently used for finding unique elements in a dataset, identifying common or distinct elements between datasets, or performing set operations for data filtering or comparison.
+
+|
+| :-- |
+|---|
+
+---
+
+### **Question 15**
+
+|                                                                                                                                                                                                                      |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Question:** What is the difference between `loc` and `iloc` in Pandas? When would you use one over the other? Provide examples of how to use both for selecting and modifying data in a DataFrame. |
+
+<br>
+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Answer:**
+
+Both `loc` and `iloc` are used for selecting data from Pandas DataFrames, but they differ in how they refer to rows and columns:
+
+*   **`loc`:**  Primarily **label-based** indexing. You use row and column *labels* to select data.
+*   **`iloc`:** Primarily **integer-based** indexing. You use integer *
